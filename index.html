@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>Camping Las Dunas Aftellen!</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: url('lasdunas.png') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            text-shadow: 2px 2px 5px #000;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            text-align: center;
+            font-size: 2em;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .countdown {
+            text-align: center;
+            font-size: 1.5em;
+            margin: 30px 0;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 10px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .agenda {
+            background: rgba(0, 0, 0, 0.75);
+            max-width: 700px;
+            margin: 0 auto 50px auto;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .agenda h2 {
+            text-align: center;
+        }
+
+        .agenda ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .agenda li {
+            margin-bottom: 10px;
+        }
+
+        input, button {
+            font-size: 1em;
+            padding: 6px;
+            margin: 5px;
+        }
+
+        .agenda-form {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        label {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    🏖️ Countdown naar Camping Las Dunas!
+</header>
+
+<div class="countdown" id="countdown">
+    Aftellen...
+</div>
+
+<div class="agenda">
+    <h2>🗓️ Vakantieagenda (22 juli - 6 augustus)</h2>
+    <ul id="agenda-lijst"></ul>
+
+    <div class="agenda-form">
+        <label for="datum">Datum:</label>
+        <input type="date" id="datum" min="2025-07-22" max="2025-08-06">
+        <label for="activiteit">Activiteit:</label>
+        <input type="text" id="activiteit" placeholder="Bijv. tapas eten of naar het strand">
+        <button id="voegToeBtn">Voeg toe</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        function updateCountdown() {
+            const vertrekDatum = new Date("2025-07-22T00:00:00");
+            const nu = new Date();
+            const verschil = vertrekDatum - nu;
+
+            const dagen = Math.floor(verschil / (1000 * 60 * 60 * 24));
+            const weken = Math.floor(dagen / 7);
+            const resterendeDagen = dagen % 7;
+
+            const tekst = (dagen < 0)
+                ? "We zijn al op vakantie! 🎉"
+                : `🎉 Nog ${weken} weken en ${resterendeDagen} dagen tot vakantie met familie Slot & familie Schouten! 🎉`;
+
+            document.getElementById("countdown").textContent = tekst;
+        }
+
+        function laadAgenda() {
+            const lijst = document.getElementById("agenda-lijst");
+            lijst.innerHTML = "";
+
+            const opgeslagen = JSON.parse(localStorage.getItem("agendaLasDunas")) || [];
+
+            opgeslagen.sort((a, b) => new Date(a.datum) - new Date(b.datum));
+
+            opgeslagen.forEach(item => {
+                const li = document.createElement("li");
+                li.textContent = `${item.datum}: ${item.activiteit}`;
+                lijst.appendChild(li);
+            });
+        }
+
+        function voegAgendaItemToe() {
+            const datum = document.getElementById("datum").value;
+            const activiteit = document.getElementById("activiteit").value.trim();
+
+            if (!datum || !activiteit) {
+                alert("Vul zowel een datum als een activiteit in.");
+                return;
+            }
+
+            const item = { datum, activiteit };
+            const opgeslagen = JSON.parse(localStorage.getItem("agendaLasDunas")) || [];
+            opgeslagen.push(item);
+            localStorage.setItem("agendaLasDunas", JSON.stringify(opgeslagen));
+
+            document.getElementById("datum").value = "";
+            document.getElementById("activiteit").value = "";
+            laadAgenda();
+        }
+
+        document.getElementById("voegToeBtn").addEventListener("click", function (e) {
+            e.preventDefault(); // voorkomt pagina refresh
+            voegAgendaItemToe();
+        });
+
+        updateCountdown();
+        laadAgenda();
+    });
+</script>
+
+</body>
+</html>
